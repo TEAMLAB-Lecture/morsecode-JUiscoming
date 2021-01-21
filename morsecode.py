@@ -51,7 +51,11 @@ def is_help_command(user_input):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
+    user_input = user_input.upper()
+    
+    result = False
+    if user_input == 'H' or user_input == 'HELP':
+        result = True
 
     return result
     # ==================================
@@ -83,9 +87,23 @@ def is_validated_english_sentence(user_input):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
-
-    return result
+    user_input = user_input.upper()
+    
+    alpha = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    marks = set('.,!? ')
+    
+    # 알파벳이 들어가지 않는 경우는 무조건 False
+    alpha_count = 0 # alphabet 출현 횟수 count
+    for c in user_input:
+        if (c not in alpha) and (c not in marks):
+            return False
+        elif c in alpha:
+            alpha_count += 1
+    
+    if alpha_count:
+        return True
+    else:
+        return False
     # ==================================
 
 
@@ -114,9 +132,22 @@ def is_validated_morse_code(user_input):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
+     
+    # 1. 정해진 문자만 사용하여 구성된 문자열인지 검사
+    char_set = set('-. ')
+    for c in user_input:
+        if c not in char_set:
+            return False
+    
+    # 2. 정의된 morse code와 다른 문자열이 있는지 검사
+    morse_dict = get_morse_code_dict()
+    words = [word for word in user_input.split(' ') if word != '']
+    
+    for word in words:
+        if word not in morse_dict.values():
+            return False
 
-    return result
+    return True
     # ==================================
 
 
@@ -140,7 +171,13 @@ def get_cleaned_english_sentence(raw_english_sentence):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
+    result = []
+    marks = set('.,!?')
+    for c in raw_english_sentence:
+        if c not in marks:
+            result.append(c)
+    
+    result = ''.join(result).strip()
 
     return result
     # ==================================
@@ -170,9 +207,9 @@ def decoding_character(morse_character):
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
     morse_code_dict = get_morse_code_dict()
-    result = None
-
-    return result
+    decoding_dict = {v:k for k, v in morse_code_dict.items()}
+    
+    return decoding_dict[morse_character]
     # ==================================
 
 
@@ -200,9 +237,8 @@ def encoding_character(english_character):
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
     morse_code_dict = get_morse_code_dict()
-    result = None
 
-    return result
+    return morse_code_dict[english_character.upper()]    
     # ==================================
 
 
@@ -225,8 +261,20 @@ def decoding_sentence(morse_sentence):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
-
+    words = [word for word in morse_sentence.split(' ')]
+    result = ''
+    
+    i = 0
+    while i < len(words):
+        if words[i] == '':
+            result += ' '
+            while i < len(words) and words[i] == '':
+                i += 1
+        else:
+            result += decoding_character(words[i])
+            i += 1
+    
+    result = result.strip()
     return result
     # ==================================
 
@@ -250,17 +298,38 @@ def encoding_sentence(english_sentence):
         '.... ..  .... ..'
     """
     # ===Modify codes below=============
-    # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    result = None
-
-    return result
+    # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정    
+    # 1. 문장부호 제거, 대문자화(capitalize)
+    english_sentence = get_cleaned_english_sentence(english_sentence).upper()
+    # 2. 공백을 기준으로 split
+    words = [word for word in english_sentence.split(' ') if word != '']
+    result = ''
+    
+    for word in words:
+        for char in word:
+            result = result + encoding_character(char) + ' '
+        result += ' '
+    
+    return result[:-1]
     # ==================================
 
 
 def main():
     print("Morse Code Program!!")
     # ===Modify codes below=============
-
+    while True: # input loop
+        user_input = input('Input your message(H - Help, 0 - Exit): ')
+        if is_help_command(user_input):
+            print(get_help_message())
+        elif user_input == '0':
+            break
+        else:
+            if is_validated_english_sentence(user_input):
+                print(encoding_sentence(user_input))
+            elif is_validated_morse_code(user_input):
+                print(decoding_sentence(user_input))
+            else:
+                print('Wrong Input')
 
 
     # ==================================
