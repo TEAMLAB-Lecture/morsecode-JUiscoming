@@ -264,17 +264,13 @@ def decoding_sentence(morse_sentence):
     words = [word for word in morse_sentence.split(' ')]
     result = ''
     
-    i = 0
-    while i < len(words):
-        if words[i] == '':
+    for word in words:
+        if word == '':
             result += ' '
-            while i < len(words) and words[i] == '':
-                i += 1
         else:
-            result += decoding_character(words[i])
-            i += 1
-    
-    result = result.strip()
+            result += decoding_character(word)
+
+    result = result.rstrip()
     return result
     # ==================================
 
@@ -310,7 +306,8 @@ def encoding_sentence(english_sentence):
             result = result + encoding_character(char) + ' '
         result += ' '
     
-    return result[:-1]
+    result = result.rstrip()
+    return result
     # ==================================
 
 
